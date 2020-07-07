@@ -1,0 +1,3 @@
+#!ipxe
+dhcp
+chain ${base-url}/${target-path}

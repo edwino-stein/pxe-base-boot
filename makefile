@@ -12,6 +12,7 @@ SET_TARGET_PATH_LABEL = target-path
 
 # Base files
 DEFAULT_VALUES := $(SRC_DIR)/defaults.ipxe
+BASE_CHAIN := $(SRC_DIR)/chain.ipxe
 
 # EFI IPXE boot paths
 IPXE_EFI_TARGET = bin-x86_64-efi/ipxe.efi
@@ -22,6 +23,9 @@ IPXE_BIOS_TARGET = bin/undionly.kpxe
 IPXE_BIOS := $(OUT_DIR)/$(notdir $(IPXE_BIOS_TARGET))
 
 ##################################### UTIL #####################################
+
+# Calc total lines of base chain file
+BASE_CHAN_TOTAL_LINES = $(shell cat $(BASE_CHAIN) | wc -l)
 
 # Get default parameters to chain boot
 DEFAULT_BASE_URL = $(shell cat $(DEFAULT_VALUES) | grep -oP '(?<=$(SET_BASE_URL_LABEL) ).*')
