@@ -14,6 +14,9 @@ SET_TARGET_PATH_LABEL = target-path
 DEFAULT_VALUES := $(SRC_DIR)/defaults.ipxe
 BASE_CHAIN := $(SRC_DIR)/chain.ipxe
 
+# Embedded chain files
+BIOS_CHAIN = $(OUT_DIR)/bios.ipxe
+
 # EFI IPXE boot paths
 IPXE_EFI_TARGET = bin-x86_64-efi/ipxe.efi
 IPXE_EFI := $(OUT_DIR)/$(notdir $(IPXE_EFI_TARGET))
@@ -44,6 +47,14 @@ all: efi bios
 efi: $(IPXE_EFI)
 bios: $(IPXE_BIOS)
 
+# Build BIOS embedded chain file
+$(BIOS_CHAIN):
+	@mkdir -p $(@D)
+	echo '$(IPXE_HEADER)' > $(@)
+	echo 'set $(SET_BASE_URL_LABEL) $(BASE_URL)' >> $(@)
+	echo 'set $(SET_TARGET_PATH_LABEL) $(BIOS_TARGET)' >> $(@)
+	cat $(BASE_CHAIN) | tail -n `expr $(BASE_CHAN_TOTAL_LINES) - 1` >> $(@)
+
 # Copy EFI IPXE boot file
 $(IPXE_EFI): $(IPXE_SRC_DIR)/$(IPXE_EFI_TARGET)
 	@mkdir -p $(@D)
@@ -59,8 +70,8 @@ $(IPXE_SRC_DIR)/$(IPXE_EFI_TARGET):
 	cd $(IPXE_SRC_DIR) && $(MAKE) $(IPXE_EFI_TARGET)
 
 # Build BIOS IPXE boot file
-$(IPXE_SRC_DIR)/$(IPXE_BIOS_TARGET):
-	cd $(IPXE_SRC_DIR) && $(MAKE) $(IPXE_BIOS_TARGET)
+$(IPXE_SRC_DIR)/$(IPXE_BIOS_TARGET): $(BIOS_CHAIN)
+	cd $(IPXE_SRC_DIR) && $(MAKE) $(IPXE_BIOS_TARGET) EMBED=../../$(BIOS_CHAIN)
 
 # Clean
 clean:
