@@ -1,8 +1,17 @@
 ################################### SETTINGS ###################################
 
 # Directories
+SRC_DIR = src
 OUT_DIR = out
 IPXE_SRC_DIR = ipxe/src
+
+# Meta data
+IPXE_HEADER = \#!ipxe
+SET_BASE_URL_LABEL = base-url
+SET_TARGET_PATH_LABEL = target-path
+
+# Base files
+DEFAULT_VALUES := $(SRC_DIR)/defaults.ipxe
 
 # EFI IPXE boot paths
 IPXE_EFI_TARGET = bin-x86_64-efi/ipxe.efi
@@ -13,6 +22,15 @@ IPXE_BIOS_TARGET = bin/undionly.kpxe
 IPXE_BIOS := $(OUT_DIR)/$(notdir $(IPXE_BIOS_TARGET))
 
 ##################################### UTIL #####################################
+
+# Get default parameters to chain boot
+DEFAULT_BASE_URL = $(shell cat $(DEFAULT_VALUES) | grep -oP '(?<=$(SET_BASE_URL_LABEL) ).*')
+DEFAULT_TARGET_PATH = $(shell cat $(DEFAULT_VALUES) | grep -oP '(?<=$(SET_TARGET_PATH_LABEL) ).*')
+
+# Define parameters default value if has not defined
+BASE_URL ?= $(DEFAULT_BASE_URL)
+EFI_TARGET ?= $(DEFAULT_TARGET_PATH)
+BIOS_TARGET ?= $(DEFAULT_TARGET_PATH)
 
 .PHONY: all clean efi bios
 

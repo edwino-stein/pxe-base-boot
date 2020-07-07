@@ -1,0 +1,4 @@
+#!ipxe
+
+set base-url tftp://${next-server}
+set target-path boot.ipxe
