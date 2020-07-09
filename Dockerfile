@@ -15,7 +15,13 @@ ARG efi_target=efi.ipxe
 ARG bios_target=bios.ipxe
 RUN make clean bios efi BASE_URL=$base_url BIOS_TARGET=$bios_target EFI_TARGET=$efi_target
 
-FROM edwinostein/tftp-base:1.0.0 AS server
+FROM alpine:3.12.0 AS server
+
+RUN apk add --no-cache tftp-hpa
 
 WORKDIR /var/tftpboot
 COPY --from=builder [ "/pxe-boot-files/out/ipxe.efi", "/pxe-boot-files/out/undionly.kpxe", "./" ]
+
+EXPOSE 69/udp
+ENTRYPOINT [ "/usr/sbin/in.tftpd" ]
+CMD [ "--verbose", "--foreground", "--address", "0.0.0.0:69", "--secure", "/var/tftpboot" ]
