@@ -1,4 +1,4 @@
-FROM ubuntu AS builder
+FROM ubuntu:20.04 AS builder
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends git ca-certificates build-essential liblzma-dev \
@@ -6,8 +6,9 @@ RUN apt-get update \
 
 WORKDIR /pxe-boot-files
 COPY . .
-RUN git submodule init \
-    && git submodule update --force \
+
+ARG ipxe_tag=v1.20.1
+RUN git clone https://github.com/ipxe/ipxe.git --depth 1 --branch $ipxe_tag \
     && make bios efi -j4
 
 ARG base_url="http://\$\${next-server}"
